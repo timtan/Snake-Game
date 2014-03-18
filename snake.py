@@ -10,15 +10,16 @@ center = width/2, height/2
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 
-class SnakeWorld(object):
+class Character(object):
     def __init__(self, environment):
+        super(Character, self).__init__()
         self.environment = environment
 
     def draw_point(self, color, point):
         pygame.draw.rect(self.environment.screen, color, (point[0] * 10, point[1]*10, 10, 10))
 
 
-class Candie(SnakeWorld):
+class Candie(Character):
     def __init__(self, environment):
         super(Candie, self).__init__(environment)
         self.point = center
@@ -31,7 +32,7 @@ class Candie(SnakeWorld):
         self.draw_point(self.color, self.point)
 
 
-class Snake(SnakeWorld):
+class Snake(Character):
     def __init__(self, environment):
         super(Snake, self).__init__(environment)
 
@@ -95,20 +96,22 @@ class Core(object):
     STATE_GAME_OVER = 1
 
     def __init__(self, surface, name):
+
         pygame.display.set_caption(name)
+
         self.screen = surface
         self.clock = pygame.time.Clock()
         self.tick = 6.0
         self.state = Core.STATE_INIT_PLAY
+
+        self.snake = Snake(self)
+        self.candie = Candie(self)
 
     def dispatch(self, event):
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.state = Core.STATE_INIT_PLAY
-            #sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            pass
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 self.snake.turn_left()
@@ -116,9 +119,9 @@ class Core(object):
                 self.snake.turn_right()
 
     def init_play(self):
+        self.state = Core.STATE_NORMAL_PLAY
         self.snake = Snake(self)
         self.candie = Candie(self)
-        self.state = Core.STATE_NORMAL_PLAY
 
     def normal_play(self):
         """ main logic for playing """
